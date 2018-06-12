@@ -125,8 +125,7 @@ async function onMessage(data) {
 }
 
 function onClose() {
-    let msg = createMessage('left', this.data, `left.`);
-    this.wss.broadcast(msg);
+    console.log(this.userData.uuid + "closed webSocket");
 }
 
 app.wss = createWebSocketServer(server, onConnect, onMessage, onClose);
