@@ -112,9 +112,32 @@ async function getSetupedTableOfOneWeek(uuid, startTime, endTime){
 async function getChatRoomList(uuid) {
     var chatRoomList = [];
     var selectedCourse = await user.findSelectedByUuid(uuid);
+    if(selectedCourse === null){
+        throw new APIError("getChatRoomList:invalid uuid","无效的uuid");
+    }
+    var courseList = selectedCourse.selected;
     var setupedCourse = await user.findSetupedByUuid(uuid);
-    var courseList = selectedCourse.selected.concat(setupedCourse.setuped);
-    for(var i in courseList){
+    setupedCourse.setuped.forEach(function (setupedCourse) {
+        if(courseList.every(function (course) {
+                return course.chatRoom.toString() !== setupedCourse.chatRoom.toString();
+        })){
+            courseList.push(setupedCourse);
+        }
+    });
+    // for(var i in courseList){
+    //     console.log(courseList.length);
+    //     console.log(i);                //奇怪的错误，toBSON; 注意for in 与 for 的区别
+    //     var cr = await chatRoom.findById(courseList[i].chatRoom);
+    //     chatRoomList.push({
+    //         id:await cr._id,
+    //         name:courseList[i].name,
+    //         toReadNum:0,
+    //         onMessageSetted:false,
+    //         recDataList:[]
+    //     });
+    // }
+
+    for(var i=0;i < courseList.length; i++){
         var cr = await chatRoom.findById(courseList[i].chatRoom);
         chatRoomList.push({
             id:await cr._id,
